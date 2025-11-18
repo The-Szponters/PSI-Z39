@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("Błąd socket()");
+        perror("Error socket()");
         exit(EXIT_FAILURE);
     }
 
@@ -32,12 +32,12 @@ int main(int argc, char *argv[]) {
 
 
     if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
-        perror("Błąd bind()");
+        perror("Error bind()");
         close(sockfd);
         exit(EXIT_FAILURE);
     }
 
-    printf("UDP Server C nasłuchuje na porcie %d\n", SERVER_PORT);
+    printf("UDP Server listens on %d\n", SERVER_PORT);
 
     len = sizeof(cliaddr);
 
@@ -50,18 +50,18 @@ int main(int argc, char *argv[]) {
 
         if (n < 0) {
             if (errno == EINTR) continue;
-            perror("Błąd recvfrom()");
+            perror("Error recvfrom()");
             continue;
         }
 
         char *client_ip = inet_ntoa(cliaddr.sin_addr);
 
-        printf("\nOdebrano %d bajtów od %s:%d\n",
+        printf("\nReceived %d bytes from %s:%d\n",
                n, client_ip, ntohs(cliaddr.sin_port));
 
         if (sendto(sockfd, (const char *)ACK_MESSAGE, strlen(ACK_MESSAGE),
                    0, (const struct sockaddr *) &cliaddr, len) < 0) {
-            perror("Błąd sendto()");
+            perror("Error sendto()");
         }
     }
 

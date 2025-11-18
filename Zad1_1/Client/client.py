@@ -2,7 +2,6 @@ import socket
 import sys
 import time
 import os
-import struct
 
 
 def create_payload(size):
@@ -35,12 +34,12 @@ def run_client():
             end_time = time.time()
             rtt_ms = (end_time - start_time) * 1000
             test_results.append((len(payload), rtt_ms))
-            print(f"Size: {len(payload)} B, Success. RTT = {rtt_ms:.3f} ms. Response: {data}")
+            print(f"Payload size: {len(payload)} B, Success. RTT = {rtt_ms:.3f} ms. Response: {data}")
             current_size *= 2
     except socket.timeout:
-        print(f"Size: {len(payload)} B, Timeout Error.")
+        print(f"Payload size: {len(payload)} B, Timeout Error.")
     except socket.error as e:
-        print(f"Size: {len(payload)} B, Network Error: {e}")
+        print(f"Payload size: {len(payload)} B, Network Error: {e}")
 
     print("\n--- Starting binary search for maximum payload size ---")
     left = current_size // 2
@@ -54,13 +53,14 @@ def run_client():
             data, server_address = client_socket.recvfrom(64)
             left = curr + 1
         except socket.timeout:
-            print(f" Size: {len(payload)} B, Timeout Error.")
+            print(f"Payload size: {len(payload)} B, Timeout Error.")
             right = curr - 1
         except socket.error as e:
-            print(f"Size: {len(payload)} B, Network Error: {e}")
+            print(f"Payload size: {len(payload)} B, Network Error: {e}")
             right = curr - 1
 
-    print(f"Max size : {len(payload)} B")
+    print(f"Payload max size : {len(payload)} B")
+    print(f"Maximum datagram size : {len(payload) + 20 + 8} B (including IP and UDP headers)")
     client_socket.close()
 
     print("\n--- Size, RTT ---")
