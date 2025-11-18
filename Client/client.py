@@ -42,6 +42,7 @@ def run_client():
     except socket.error as e:
         print(f"Size: {len(payload)} B, Network Error: {e}")
 
+    print("\n--- Starting binary search for maximum payload size ---")
     left = current_size // 2
     right = current_size
     curr = 0
