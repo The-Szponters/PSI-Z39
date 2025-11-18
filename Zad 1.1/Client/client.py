@@ -35,7 +35,7 @@ def run_client():
             end_time = time.time()
             rtt_ms = (end_time - start_time) * 1000
             test_results.append((len(payload), rtt_ms))
-            print(f"Size: {len(payload)} B, Success. RTT = {rtt_ms:.3f} ms. Response ACK: {len(data)} B.")
+            print(f"Size: {len(payload)} B, Success. RTT = {rtt_ms:.3f} ms. Response: {data}")
             current_size *= 2
     except socket.timeout:
         print(f"Size: {len(payload)} B, Timeout Error.")
