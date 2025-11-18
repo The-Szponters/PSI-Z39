@@ -6,8 +6,7 @@ import struct
 
 
 def create_payload(size):
-    header = struct.pack('!I', size)
-    payload = header + os.urandom(size)
+    payload = os.urandom(size)
     return payload
 
 
@@ -23,7 +22,7 @@ def run_client():
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         client_socket.settimeout(2)
     except socket.error as e:
-        print(f"Błąd tworzenia gniazda: {e}")
+        print(f"Error while creating socket: {e}")
         sys.exit(1)
 
     try:
@@ -32,16 +31,16 @@ def run_client():
             start_time = time.time()
             client_socket.sendto(payload, (SERVER_HOST, SERVER_PORT))
             data, server_address = client_socket.recvfrom(64)
-            print(f"Otrzymano odpowiedź od serwera: {server_address}")
+            print(f"Obtained response from the server: {server_address}")
             end_time = time.time()
             rtt_ms = (end_time - start_time) * 1000
-            test_results.append((current_size, rtt_ms))
-            print(f"Rozmiar: {current_size} B, Sukces. RTT = {rtt_ms:.3f} ms. Odp. ACK: {len(data)} B.")
+            test_results.append((len(payload), rtt_ms))
+            print(f"Size: {len(payload)} B, Success. RTT = {rtt_ms:.3f} ms. Response ACK: {len(data)} B.")
             current_size *= 2
     except socket.timeout:
-        print(f"Rozmiar: {current_size} B, Błąd: Timeout. Prawdopodobny limit osiągnięty.")
+        print(f"Size: {len(payload)} B, Timeout Error.")
     except socket.error as e:
-        print(f"Rozmiar: {current_size} B, Błąd sieci: {e}")
+        print(f"Size: {len(payload)} B, Network Error: {e}")
 
     left = current_size // 2
     right = current_size
@@ -54,16 +53,16 @@ def run_client():
             data, server_address = client_socket.recvfrom(64)
             left = curr + 1
         except socket.timeout:
-            print(f"Rozmiar: {curr} B, Błąd: Timeout.")
+            print(f" Size: {len(payload)} B, Timeout Error.")
             right = curr - 1
         except socket.error as e:
-            print(f"Rozmiar: {curr} B, Błąd sieci: {e}")
+            print(f"Size: {len(payload)} B, Network Error: {e}")
             right = curr - 1
 
-    print(f"Maksymalny rozmiar : {right} B")
+    print(f"Max size : {len(payload)} B")
     client_socket.close()
 
-    print("\n--- Zestawienie ---")
+    print("\n--- Size, RTT ---")
     for size, rtt in test_results:
         print(f"{size},{rtt:.3f}")
     print("------------------------------------------")
