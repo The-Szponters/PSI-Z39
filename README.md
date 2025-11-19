@@ -1,26 +1,4 @@
-# PSI - Laboratorium Zadanie 1.1 (Komunikacja UDP)
+# PSI - Laboratorium
 
 ## Zespół nr 39
-**Temat:** Klient i serwer komunikujące się przez protokół UDP. Klient (Python) testuje maksymalną wielkość datagramu oraz mierzy czas RTT, Serwer (C) odsyła potwierdzenia.
 
-## Opis Repozytorium
-Projekt składa się z dwóch skonteneryzowanych aplikacji uruchamianych w środowisku Docker:
-1. **Server (C):** Nasłuchuje na porcie 8000, odbiera datagramy i odsyła statyczne potwierdzenie ("ACK_OK").
-2. **Client (Python):** Wysyła do serwera datagramy o rosnącej wielkości, mierzy czas RTT oraz eksperymentalnie wyznacza maksymalną wielkość pakietu UDP (MTU payload) metodą przeszukiwania binarnego.
-
-## Struktura plików
-* `Client/` - Kod źródłowy klienta (`client.py`) oraz `Dockerfile`.
-* `Server/` - Kod źródłowy serwera (`server.c`) oraz `Dockerfile`.
-* `start.sh` - Skrypt automatyzujący budowę i uruchomienie kontenerów w dedykowanej sieci.
-* `message.txt` - Logi z przykładowego uruchomienia.
-
-## Wymagania
-* Docker
-* Środowisko bigubu
-
-## Uruchomienie
-Aby zbudować obrazy i uruchomić test, należy wykonać skrypt `start.sh`.
-
-```bash
-chmod +x start.sh
-./start.sh
