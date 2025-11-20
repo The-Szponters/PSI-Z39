@@ -51,6 +51,7 @@ def run_client():
         try:
             client_socket.sendto(payload, (SERVER_HOST, SERVER_PORT))
             data, server_address = client_socket.recvfrom(64)
+            print(f"Payload size: {len(payload)} B, Success. Response: {data}")
             left = curr + 1
         except socket.timeout:
             print(f"Payload size: {len(payload)} B, Timeout Error.")
