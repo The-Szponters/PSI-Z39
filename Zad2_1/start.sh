@@ -12,6 +12,7 @@ echo "--- Running 5 client in parallel ---"
 
 for i in {1..5}
 do
+   docker rm -f z39_client_tcp_$i 2>/dev/null || true
    docker run \
      --rm \
      --name z39_client_tcp_$i \
@@ -21,3 +22,5 @@ done
 
 wait
 echo "Tests Finished."
+echo "Server Logs:"
+docker logs z39_server_tcp
