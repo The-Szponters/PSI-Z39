@@ -2,8 +2,9 @@ import socket
 import sys
 import time
 
+
 def run_client():
-    SERVER_HOST = 'z39_server_app1'
+    SERVER_HOST = 'z39_server_tcp'
     SERVER_PORT = 8000
 
     message = "Laboratorium PSI - Test wspolbieznosci"

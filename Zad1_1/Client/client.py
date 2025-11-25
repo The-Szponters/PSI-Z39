@@ -10,7 +10,7 @@ def create_payload(size):
 
 
 def run_client():
-    SERVER_HOST = 'z39_server_tcp'
+    SERVER_HOST = 'z39_server_app1'
     SERVER_PORT = 8000
 
     current_size = 1
