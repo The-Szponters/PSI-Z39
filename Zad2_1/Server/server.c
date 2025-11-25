@@ -30,6 +30,8 @@ void reap_children(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+    setvbuf(stdout, NULL, _IONBF, 0);
+    
     int sockfd;
     char buffer[MAX_BUFFER_SIZE];
     struct sockaddr_in servaddr, cliaddr;
