@@ -22,7 +22,7 @@ def run_client():
 
         print(f"[Client] Connecting to {SERVER_HOST}:{SERVER_PORT}...")
         client_socket.connect((SERVER_HOST, SERVER_PORT))
-        print(f"[Client] Connected.")
+        print("[Client] Connected.")
 
         if DELAY > 0:
             print(f"[Client] Simulating 'slow client'. Sleeping for {DELAY}s...")

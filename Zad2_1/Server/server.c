@@ -13,7 +13,7 @@
 #define MAX_BUFFER_SIZE 1000000
 #define SERVER_PORT 8000
 
-/* Prosty hash DJB2 */
+/* hash DJB2 */
 unsigned long compute_hash(const unsigned char *data, size_t len) {
     unsigned long hash = 5381;
     for (size_t i = 0; i < len; i++) {
@@ -25,8 +25,7 @@ unsigned long compute_hash(const unsigned char *data, size_t len) {
 void reap_children(int sig) {
     (void)sig;
     int status;
-    while (wait(&status) > 0) {
-
+    while (waitpid(-1, &status, WNOHANG) > 0) {
     }
 }
 
@@ -106,7 +105,8 @@ int main(int argc, char *argv[]) {
             /* CHILD */
             close(sockfd);
 
-            int n = recv(connfd, buffer, MAX_BUFFER_SIZE, 0);
+            memset(buffer, 0, MAX_BUFFER_SIZE);
+            int n = recv(connfd, buffer, MAX_BUFFER_SIZE - 1, 0);
             if (n < 0) {
                 perror("Error recv()");
                 close(connfd);
@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
             unsigned long hash = compute_hash((unsigned char *)buffer, (size_t)n);
 
             char response[128];
-            snprintf(response, sizeof(response), "HASH:%08lx\n", hash);
+            snprintf(response, sizeof(response), "Hash: %lu", hash);
 
             if (send(connfd, response, strlen(response), 0) < 0) {
                 perror("Error send()");
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
                 exit(EXIT_FAILURE);
             }
 
-            printf("Sent hash %s to %s:%d\n",
+            printf("Sent response '%s' to %s:%d\n",
                    response, client_ip, ntohs(cliaddr.sin_port));
 
             close(connfd);

@@ -1,26 +1,23 @@
 #!/bin/bash
 
-echo "--- Budowanie Serwera ---"
+echo "--- Buildig Server ---"
 docker build -t z39_server_tcp_image ./Server
-docker rm -f z39_server_tcp 2>/dev/null || true
-
-docker run -d \
-  --name z39_server_tcp \
-  --network z39_network \
-  z39_server_tcp_image
-
+echo "--- Building Client ---"
 docker build -t z39_client_tcp_image ./Client
+
+docker rm -f z39_server_tcp 2>/dev/null || true
+docker run -d --name z39_server_tcp --network z39_network z39_server_tcp_image
+
+echo "--- Running 5 client in parallel ---"
 
 for i in {1..5}
 do
-   CLIENT_NAME="z39_client_tcp_$i"
-   docker rm -f $CLIENT_NAME 2>/dev/null || true
-
    docker run \
-     --name $CLIENT_NAME \
+     --rm \
+     --name z39_client_tcp_$i \
      --network z39_network \
-     z39_client_tcp_image "Wiadomosc_od_klienta_$i" &
+     z39_client_tcp_image &
 done
 
 wait
-echo "Testy zakończone."
+echo "Tests Finished."
