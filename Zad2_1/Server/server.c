@@ -25,13 +25,17 @@ unsigned long compute_hash(const unsigned char *data, size_t len) {
 void reap_children(int sig) {
     (void)sig;
     int status;
-    while (waitpid(-1, &status, WNOHANG) > 0) {
+    pid_t pid;
+
+    while ((pid = wait(&status)) > 0) {
+        (void)pid; // avoid warning
     }
 }
 
+
 int main(int argc, char *argv[]) {
     setvbuf(stdout, NULL, _IONBF, 0);
-    
+
     int sockfd;
     char buffer[MAX_BUFFER_SIZE];
     struct sockaddr_in servaddr, cliaddr;
