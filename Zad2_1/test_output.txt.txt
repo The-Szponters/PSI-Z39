@@ -1,0 +1,106 @@
+dsledzie@bigubu:~/PSI-Z39/Zad2_1$ ./start.sh
+--- Buildig Server ---
+[+] Building 2.2s (9/9) FINISHED                                                                                                        docker:default
+ => [internal] load build definition from Dockerfile                                                                                              0.0s
+ => => transferring dockerfile: 145B                                                                                                              0.0s
+ => [internal] load metadata for docker.io/library/gcc:4.9                                                                                        1.0s
+ => [internal] load .dockerignore                                                                                                                 0.1s
+ => => transferring context: 2B                                                                                                                   0.0s
+ => [internal] load build context                                                                                                                 0.0s
+ => => transferring context: 4.14kB                                                                                                               0.0s
+ => CACHED [1/4] FROM docker.io/library/gcc:4.9@sha256:6356ef8b29cc3522527a85b6c58a28626744514bea87a10ff2bf67599a7474f5                           0.0s
+ => => resolve docker.io/library/gcc:4.9@sha256:6356ef8b29cc3522527a85b6c58a28626744514bea87a10ff2bf67599a7474f5                                  0.0s
+ => [2/4] COPY . /Sockets                                                                                                                         0.0s
+ => [3/4] WORKDIR /Sockets/                                                                                                                       0.0s
+ => [4/4] RUN gcc -std=gnu99 -o server server.c                                                                                                   0.7s
+ => exporting to image                                                                                                                            0.3s
+ => => exporting layers                                                                                                                           0.0s
+ => => writing image sha256:fc68804c479a395068c0aaa1647798cd13b02b0a874445831a7e964da908a926                                                      0.3s
+ => => naming to docker.io/library/z39_server_tcp_image                                                                                           0.0s
+--- Building Client ---
+[+] Building 1.2s (7/7) FINISHED                                                                                                        docker:default
+ => [internal] load build definition from Dockerfile                                                                                              0.1s
+ => => transferring dockerfile: 116B                                                                                                              0.0s
+ => [internal] load metadata for docker.io/library/python:3                                                                                       1.0s
+ => [internal] load .dockerignore                                                                                                                 0.0s
+ => => transferring context: 2B                                                                                                                   0.0s
+ => [internal] load build context                                                                                                                 0.0s
+ => => transferring context: 31B                                                                                                                  0.0s
+ => [1/3] FROM docker.io/library/python:3@sha256:edf6433343f65f94707985869aeaafe8beadaeaee11c4bc02068fca52dce28dd                                 0.0s
+ => => resolve docker.io/library/python:3@sha256:edf6433343f65f94707985869aeaafe8beadaeaee11c4bc02068fca52dce28dd                                 0.0s
+ => CACHED [2/3] COPY client.py /                                                                                                                 0.0s
+ => exporting to image                                                                                                                            0.0s
+ => => exporting layers                                                                                                                           0.0s
+ => => writing image sha256:f53abb64c2f5d475f71d12710e90809a1aa1a880971726d239850a98356dc369                                                      0.0s
+ => => naming to docker.io/library/z39_client_tcp_image                                                                                           0.0s
+z39_server_tcp
+539cbf16283880a5e5a79dab14d47b1dfd19047e8bf5c7525b79c6dba26890fb
+--- Running 5 client in parallel ---
+[Client] Connecting to z39_server_tcp:8000...
+[Client] Connected.
+[Client] Simulating 'slow client'. Sleeping for 5s...
+[Client] Resuming work after sleep.
+[Client] Sending: 'Test PSI Message'
+[Client] Server response: Hash: 10907319353902606518
+[Test A] Local hash: 10907319353902606518
+[Test A] Server hash: 10907319353902606518
+[Test A] SUCCESS: Hashes are identical.
+[Client] Connecting to z39_server_tcp:8000...
+[Client] Connected.
+[Client] Simulating 'slow client'. Sleeping for 5s...
+[Client] Resuming work after sleep.
+[Client] Sending: 'Test PSI Message'
+[Client] Server response: Hash: 10907319353902606518
+[Test A] Local hash: 10907319353902606518
+[Test A] Server hash: 10907319353902606518
+[Test A] SUCCESS: Hashes are identical.
+[Client] Connecting to z39_server_tcp:8000...
+[Client] Connected.
+[Client] Simulating 'slow client'. Sleeping for 5s...
+[Client] Resuming work after sleep.
+[Client] Sending: 'Test PSI Message'
+[Client] Server response: Hash: 10907319353902606518
+[Test A] Local hash: 10907319353902606518
+[Test A] Server hash: 10907319353902606518
+[Test A] SUCCESS: Hashes are identical.
+[Client] Connecting to z39_server_tcp:8000...
+[Client] Connected.
+[Client] Simulating 'slow client'. Sleeping for 5s...
+[Client] Resuming work after sleep.
+[Client] Sending: 'Test PSI Message'
+[Client] Server response: Hash: 10907319353902606518
+[Test A] Local hash: 10907319353902606518
+[Test A] Server hash: 10907319353902606518
+[Test A] SUCCESS: Hashes are identical.
+[Client] Connecting to z39_server_tcp:8000...
+[Client] Connected.
+[Client] Simulating 'slow client'. Sleeping for 5s...
+[Client] Resuming work after sleep.
+[Client] Sending: 'Test PSI Message'
+[Client] Server response: Hash: 10907319353902606518
+[Test A] Local hash: 10907319353902606518
+[Test A] Server hash: 10907319353902606518
+[Test A] SUCCESS: Hashes are identical.
+Tests Finished.
+Server Logs:
+TCP server listens on 8000
+
+New connection from 172.21.39.4:58514
+
+New connection from 172.21.39.5:40292
+
+New connection from 172.21.39.6:49554
+
+New connection from 172.21.39.7:55190
+
+New connection from 172.21.39.8:51184
+Received 16 bytes from 172.21.39.4:58514
+Sent response 'Hash: 10907319353902606518' to 172.21.39.4:58514
+Received 16 bytes from 172.21.39.5:40292
+Sent response 'Hash: 10907319353902606518' to 172.21.39.5:40292
+Received 16 bytes from 172.21.39.6:49554
+Sent response 'Hash: 10907319353902606518' to 172.21.39.6:49554
+Received 16 bytes from 172.21.39.7:55190
+Sent response 'Hash: 10907319353902606518' to 172.21.39.7:55190
+Received 16 bytes from 172.21.39.8:51184
+Sent response 'Hash: 10907319353902606518' to 172.21.39.8:51184
