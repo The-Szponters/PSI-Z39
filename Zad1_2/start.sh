@@ -13,3 +13,7 @@ docker run \
   --name z39_client_app2 \
   --network z39_network \
   z39_client_app2_image
+
+echo " "
+echo "=== SERVER OUTPUT (HASH) ==="
+docker logs z39_server_app2

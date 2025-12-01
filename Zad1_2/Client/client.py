@@ -7,7 +7,7 @@ import struct
 CHUNK_SIZE = 100
 N_CHUNKS = 100
 
-# Format: PayloadSize (4B), SeqID (4B), StatusFlag (2B) = 10 Bajtów
+# Template: PayloadSize (4B), SeqID (4B), StatusFlag (2B) = 10 Bytes
 HEADER_FORMAT = '!IIH'
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 START_TRANSMISSION = 1
@@ -45,6 +45,7 @@ def run_client():
     SERVER_PORT = 8000
 
     hash, chunks = handle_file(filepath="./random.bin")
+    print(f"CLIENT HASH: {hash}")
 
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
