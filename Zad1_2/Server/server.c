@@ -10,11 +10,12 @@
 
 #define MAX_BUFFER_SIZE 1000000
 #define MAX_FILE_SIZE 20000
-#define ACK_MESSAGE "ACK_OK"
 #define SERVER_PORT 8000
+
 #define FLAG_START 1
 #define FLAG_IN_PROGRESS 0
 #define FLAG_FIN 2
+#define FLAG_ACK 3
 
 typedef struct __attribute__((packed)) {
     uint32_t payload_size;
@@ -24,7 +25,8 @@ typedef struct __attribute__((packed)) {
 
 unsigned long compute_hash(const unsigned char *data, size_t len) {
     unsigned long hash = 5381;
-    for (size_t i = 0; i < len; i++) {
+    size_t i;
+    for (i = 0; i < len; i++) {
         hash = ((hash << 5) + hash) + data[i];
     }
     return hash;
@@ -46,7 +48,6 @@ int main(int argc, char *argv[]) {
     }
 
     memset(&servaddr, 0, sizeof(servaddr));
-
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(SERVER_PORT);
@@ -126,7 +127,7 @@ int main(int argc, char *argv[]) {
                     memcpy(file_buf + file_len, payload, payload_size);
                     file_len += payload_size;
                 }
-                unsigned long hash = compute_hash(file_buf, file_len);
+                unsigned long hash = compute_hash((unsigned char*)file_buf, file_len);
                 printf("HASH: %lu\n", hash);
                 
                 started = 0;
@@ -141,12 +142,12 @@ int main(int argc, char *argv[]) {
         }
 
         if (send_ack) {
-            unsigned char ack_buf[sizeof(ACK_MESSAGE) - 1 + 4];
-            memcpy(ack_buf, ACK_MESSAGE, sizeof(ACK_MESSAGE) - 1);
-            unsigned int ack_seq_net = htonl(seq_id);
-            memcpy(ack_buf + (sizeof(ACK_MESSAGE) - 1), &ack_seq_net, 4);
+            udp_header_t ack_pkt;
+            ack_pkt.payload_size = 0;
+            ack_pkt.seq_id = htonl(seq_id);
+            ack_pkt.status = htons(FLAG_ACK);
 
-            if (sendto(sockfd, (const char *)ack_buf, sizeof(ack_buf),
+            if (sendto(sockfd, (const char *)&ack_pkt, sizeof(ack_pkt),
                        0, (const struct sockaddr *) &cliaddr, len) < 0) {
                 perror("Error sendto()");
             }
