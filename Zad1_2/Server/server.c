@@ -33,6 +33,8 @@ unsigned long compute_hash(const unsigned char *data, size_t len) {
 }
 
 int main(int argc, char *argv[]) {
+    setvbuf(stdout, NULL, _IONBF, 0); 
+
     int sockfd;
     char buffer[MAX_BUFFER_SIZE];
     struct sockaddr_in servaddr, cliaddr;
@@ -41,8 +43,6 @@ int main(int argc, char *argv[]) {
     size_t file_len = 0;
     unsigned int expected_seq = 0;
     int started = 0;
-
-    setbuf(stdout, NULL); 
 
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("Error socket()");
@@ -61,7 +61,6 @@ int main(int argc, char *argv[]) {
     }
 
     printf("UDP Server listens on %d\n", SERVER_PORT);
-    fflush(stdout); // Wypisz komunikat startowy od razu
 
     while (1) {
         memset(&cliaddr, 0, sizeof(cliaddr));
@@ -130,10 +129,10 @@ int main(int argc, char *argv[]) {
                     memcpy(file_buf + file_len, payload, payload_size);
                     file_len += payload_size;
                 }
+                
                 unsigned long hash = compute_hash((unsigned char*)file_buf, file_len);
                 
                 printf("SERVER HASH: %lu\n", hash);
-                fflush(stdout); 
                 
                 started = 0;
                 expected_seq = 0;
