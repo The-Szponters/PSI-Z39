@@ -17,16 +17,15 @@
 #define FLAG_FIN 2
 
 typedef struct __attribute__((packed)) {
-    uint32_t payload_size;  // 4 B
-    uint32_t seq_id;        // 4 B
-    uint16_t status;        // 2 B
+    uint32_t payload_size;
+    uint32_t seq_id;
+    uint16_t status;
 } udp_header_t;
 
-/* hash DJB2 */
 unsigned long compute_hash(const unsigned char *data, size_t len) {
     unsigned long hash = 5381;
     for (size_t i = 0; i < len; i++) {
-        hash = ((hash << 5) + hash) + data[i]; // hash * 33 + c
+        hash = ((hash << 5) + hash) + data[i];
     }
     return hash;
 }
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
     unsigned int expected_seq = 0;
     int started = 0;
 
-
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("Error socket()");
         exit(EXIT_FAILURE);
@@ -53,7 +51,6 @@ int main(int argc, char *argv[]) {
     servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     servaddr.sin_port = htons(SERVER_PORT);
 
-
     if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         perror("Error bind()");
         close(sockfd);
@@ -61,8 +58,6 @@ int main(int argc, char *argv[]) {
     }
 
     printf("UDP Server listens on %d\n", SERVER_PORT);
-
-    len = sizeof(cliaddr);
 
     while (1) {
         memset(&cliaddr, 0, sizeof(cliaddr));
@@ -77,13 +72,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        char *client_ip = inet_ntoa(cliaddr.sin_addr);
-
-        printf("\nReceived %d bytes from %s:%d\n",
-               n, client_ip, ntohs(cliaddr.sin_port));
-
         if (n < (int)sizeof(udp_header_t)) {
-            fprintf(stderr, "Packet too short: %d bytes\n", n);
             continue;
         }
 
@@ -95,73 +84,72 @@ int main(int argc, char *argv[]) {
         unsigned short status = ntohs(hdr_net.status);
 
         if ((int)(sizeof(udp_header_t) + payload_size) > n) {
-            fprintf(stderr, "Malformed packet: header says %u payload, got %d bytes\n", payload_size, n);
             continue;
         }
 
         unsigned char *payload = (unsigned char *)buffer + sizeof(udp_header_t);
-
-        unsigned char ack_buf[sizeof(ACK_MESSAGE) - 1 + 4];
-        memcpy(ack_buf, ACK_MESSAGE, sizeof(ACK_MESSAGE) - 1);
-        unsigned int ack_seq_net = htonl(seq_id);
-        memcpy(ack_buf + (sizeof(ACK_MESSAGE) - 1), &ack_seq_net, 4);
+        int send_ack = 0;
 
         if (status == FLAG_START) {
             started = 1;
-            expected_seq = seq_id;
+            expected_seq = seq_id + 1;
             file_len = 0;
-            printf("START received. seq=%u, payload=%u\n", seq_id, payload_size);
-            if (payload_size > 0) {
-                if (file_len + payload_size <= MAX_FILE_SIZE) {
-                    memcpy(file_buf + file_len, payload, payload_size);
-                    file_len += payload_size;
-                } else {
-                    fprintf(stderr, "File buffer overflow on START. Dropping payload.\n");
-                }
+            if (payload_size > 0 && file_len + payload_size <= MAX_FILE_SIZE) {
+                memcpy(file_buf + file_len, payload, payload_size);
+                file_len += payload_size;
             }
-        } else if (status == FLAG_IN_PROGRESS) {
+            send_ack = 1;
+        } 
+        else if (status == FLAG_IN_PROGRESS) {
             if (!started) {
-                fprintf(stderr, "Received IN_PROGRESS before START. Ignoring.\n");
+                send_ack = 0;
             } else if (seq_id == expected_seq) {
                 if (file_len + payload_size <= MAX_FILE_SIZE) {
                     memcpy(file_buf + file_len, payload, payload_size);
                     file_len += payload_size;
                     expected_seq++;
+                    send_ack = 1;
                 } else {
-                    fprintf(stderr, "File buffer overflow. Dropping payload seq=%u.\n", seq_id);
+                    send_ack = 0;
                 }
             } else if (seq_id < expected_seq) {
-                printf("Duplicate packet seq=%u, re-ACKing.\n", seq_id);
+                send_ack = 1;
             } else {
-                printf("Out-of-order packet seq=%u, expected=%u. Ignoring but ACKing.\n", seq_id, expected_seq);
+                send_ack = 0;
             }
-        } else if (status == FLAG_FIN) {
+        } 
+        else if (status == FLAG_FIN) {
             if (!started) {
-                fprintf(stderr, "Received FIN before START. Ignoring.\n");
+                send_ack = 0;
             } else if (seq_id == expected_seq) {
                 if (file_len + payload_size <= MAX_FILE_SIZE) {
                     memcpy(file_buf + file_len, payload, payload_size);
                     file_len += payload_size;
-                } else {
-                    fprintf(stderr, "File buffer overflow on FIN. Dropping payload.\n");
                 }
                 unsigned long hash = compute_hash(file_buf, file_len);
-                printf("FIN received. Total bytes=%zu, server hash=%lu\n", file_len, hash);
+                printf("HASH: %lu\n", hash);
+                
                 started = 0;
                 expected_seq = 0;
                 file_len = 0;
+                send_ack = 1;
             } else if (seq_id < expected_seq) {
-                printf("Duplicate FIN seq=%u, re-ACKing.\n", seq_id);
+                send_ack = 1;
             } else {
-                printf("Out-of-order FIN seq=%u, expected=%u. Ignoring but ACKing.\n", seq_id, expected_seq);
+                send_ack = 0;
             }
-        } else {
-            fprintf(stderr, "Unknown status flag: %u\n", status);
         }
 
-        if (sendto(sockfd, (const char *)ack_buf, sizeof(ack_buf),
-                   0, (const struct sockaddr *) &cliaddr, len) < 0) {
-            perror("Error sendto()");
+        if (send_ack) {
+            unsigned char ack_buf[sizeof(ACK_MESSAGE) - 1 + 4];
+            memcpy(ack_buf, ACK_MESSAGE, sizeof(ACK_MESSAGE) - 1);
+            unsigned int ack_seq_net = htonl(seq_id);
+            memcpy(ack_buf + (sizeof(ACK_MESSAGE) - 1), &ack_seq_net, 4);
+
+            if (sendto(sockfd, (const char *)ack_buf, sizeof(ack_buf),
+                       0, (const struct sockaddr *) &cliaddr, len) < 0) {
+                perror("Error sendto()");
+            }
         }
     }
 
