@@ -1,3 +1,5 @@
 FROM python:3
-ADD client.py /
+COPY client.py /
+COPY random.bin /
+WORKDIR /
 ENTRYPOINT [ "python", "./client.py" ]

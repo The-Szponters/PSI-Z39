@@ -44,7 +44,7 @@ def run_client():
     SERVER_HOST = 'z39_server_app2'
     SERVER_PORT = 8000
 
-    hash, chunks = handle_file(filepath="./Client/random.bin")
+    hash, chunks = handle_file(filepath="./random.bin")
 
     try:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
