@@ -33,7 +33,7 @@ unsigned long compute_hash(const unsigned char *data, size_t len) {
 }
 
 int main(int argc, char *argv[]) {
-    setvbuf(stdout, NULL, _IONBF, 0); 
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     int sockfd;
     char buffer[MAX_BUFFER_SIZE];
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
 
         if (status == FLAG_START) {
             started = 1;
-            expected_seq = seq_id + 1;
+            expected_seq = 0; 
             file_len = 0;
             if (payload_size > 0 && file_len + payload_size <= MAX_FILE_SIZE) {
                 memcpy(file_buf + file_len, payload, payload_size);
@@ -129,7 +129,6 @@ int main(int argc, char *argv[]) {
                     memcpy(file_buf + file_len, payload, payload_size);
                     file_len += payload_size;
                 }
-                
                 unsigned long hash = compute_hash((unsigned char*)file_buf, file_len);
                 
                 printf("SERVER HASH: %lu\n", hash);
@@ -144,7 +143,7 @@ int main(int argc, char *argv[]) {
                 send_ack = 0;
             }
         }
-
+        
         if (send_ack) {
             udp_header_t ack_pkt;
             ack_pkt.payload_size = 0;
