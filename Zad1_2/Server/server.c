@@ -42,6 +42,8 @@ int main(int argc, char *argv[]) {
     unsigned int expected_seq = 0;
     int started = 0;
 
+    setbuf(stdout, NULL); 
+
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
         perror("Error socket()");
         exit(EXIT_FAILURE);
@@ -59,6 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("UDP Server listens on %d\n", SERVER_PORT);
+    fflush(stdout); // Wypisz komunikat startowy od razu
 
     while (1) {
         memset(&cliaddr, 0, sizeof(cliaddr));
@@ -128,7 +131,9 @@ int main(int argc, char *argv[]) {
                     file_len += payload_size;
                 }
                 unsigned long hash = compute_hash((unsigned char*)file_buf, file_len);
-                printf("HASH: %lu\n", hash);
+                
+                printf("SERVER HASH: %lu\n", hash);
+                fflush(stdout); 
                 
                 started = 0;
                 expected_seq = 0;
