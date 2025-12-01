@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
         else if (status == FLAG_FIN) {
             if (!started) {
                 send_ack = 0;
-            } else if (seq_id == expected_seq) {
+            } else {
                 if (file_len + payload_size <= MAX_FILE_SIZE) {
                     memcpy(file_buf + file_len, payload, payload_size);
                     file_len += payload_size;
@@ -137,10 +137,6 @@ int main(int argc, char *argv[]) {
                 expected_seq = 0;
                 file_len = 0;
                 send_ack = 1;
-            } else if (seq_id < expected_seq) {
-                send_ack = 1;
-            } else {
-                send_ack = 0;
             }
         }
         
