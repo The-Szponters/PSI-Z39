@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "--- BUILDING IMAGES ---"
-docker build -t z39_server_app2_image ./Zad1_2/Server
-docker build -t z39_client_app2_image ./Zad1_2/Client
+docker build -t z39_server_app2_image ./Server
+docker build -t z39_client_app2_image ./Client
 
 docker rm -f z39_server_app2 2>/dev/null || true
 docker rm -f z39_client_app2 2>/dev/null || true
