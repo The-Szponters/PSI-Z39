@@ -21,7 +21,7 @@ docker run \
   --network z39_network \
   --cap-add=NET_ADMIN \
   z39_client_app2_image \
-  "tc qdisc add dev eth0 root netem loss 30% && python ./client.py"
+  "tc qdisc add dev eth0 root netem loss 30% && ./client"
 
 echo " "
 echo "=== SERVER LOGS (CHECK FOR HASH) ==="

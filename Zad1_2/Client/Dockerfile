@@ -1,11 +1,12 @@
-FROM python:3
+FROM gcc:latest
 
 RUN apt-get update && apt-get install -y iproute2
 
-COPY client.py /
+COPY . /Client
+WORKDIR /Client
 
 RUN head -c 10000 /dev/urandom > random.bin
 
-WORKDIR /
+RUN gcc -o client client.c
 
-ENTRYPOINT [ "/bin/bash", "-c" ]
+ENTRYPOINT ["./client"]
