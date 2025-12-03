@@ -24,5 +24,20 @@ docker run \
   "tc qdisc add dev eth0 root netem loss 30% && ./client"
 
 echo " "
-echo "=== SERVER LOGS (CHECK FOR HASH) ==="
+echo "=== SERVER LOGS (CHECK FOR HASH, 30% LOSS) ==="
+docker logs z39_server_app2
+
+echo " "
+echo "--- STARTING CLIENT WITH 60% PACKET LOSS ---"
+docker rm -f z39_client_app2 2>/dev/null || true
+
+docker run \
+  --name z39_client_app2 \
+  --network z39_network \
+  --cap-add=NET_ADMIN \
+  z39_client_app2_image \
+  "tc qdisc add dev eth0 root netem loss 60% && ./client"
+
+echo " "
+echo "=== SERVER LOGS (CHECK FOR HASH, 60% LOSS) ==="
 docker logs z39_server_app2
